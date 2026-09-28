@@ -1,0 +1,29 @@
+# Secrets — never commit
+.env
+.env.local
+.env.*.local
+apps/web/.env.local
+*.pem
+*.key
+
+# Dependencies
+node_modules/
+
+# Builds
+apps/web/.next/
+apps/web/out/
+dist/
+
+# Runtime logs + pid files
+*.log
+*.pid
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
