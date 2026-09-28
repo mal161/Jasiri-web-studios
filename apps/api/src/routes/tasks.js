@@ -7,7 +7,7 @@ const MANAGERS = ['SUPER_ADMIN', 'CEO', 'OPERATIONS_MANAGER', 'PROJECT_MANAGER',
 
 router.get('/', authenticate, async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     let query = supabase.from('tasks').select('*, project:projects!tasks_project_id_fkey(title,slug)');
     if (req.query.status) query = query.eq('status', String(req.query.status));
     if (req.query.project_id) query = query.eq('project_id', String(req.query.project_id));
@@ -25,7 +25,7 @@ router.get('/', authenticate, async (req, res) => {
 
 router.get('/:id', authenticate, async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase
       .from('tasks')
       .select('*, project:projects(title,slug), comments:task_comments(*, author:profiles!task_comments_user_id_fkey(full_name))')
@@ -40,7 +40,7 @@ router.get('/:id', authenticate, async (req, res) => {
 
 router.post('/', authenticate, authorize(...MANAGERS), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { title, description, project_id, assignee_id, due_date, priority } = req.body;
     if (!title || !project_id) return res.status(400).json({ success: false, error: 'title and project_id are required' });
     const { data, error } = await supabase
@@ -58,7 +58,7 @@ router.post('/', authenticate, authorize(...MANAGERS), async (req, res) => {
 
 router.patch('/:id', authenticate, async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase
       .from('tasks')
       .update({ ...req.body, updated_at: new Date().toISOString() })
@@ -79,7 +79,7 @@ router.post('/:id/comments', authenticate, async (req, res) => {
   try {
     const message = String(req.body.message ?? '').trim();
     if (!message) return res.status(400).json({ success: false, error: 'Message is required' });
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase
       .from('task_comments')
       .insert({ task_id: req.params.id, user_id: req.user.profile.id, message })

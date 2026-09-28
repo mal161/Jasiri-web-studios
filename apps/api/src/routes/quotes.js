@@ -8,7 +8,7 @@ const STAFF = ['SUPER_ADMIN', 'CEO', 'OPERATIONS_MANAGER', 'SALES', 'PROJECT_MAN
 
 router.get('/', authenticate, authorize(...STAFF), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     let query = supabase.from('quotes').select('*, items:quote_items(*)', { count: 'exact' });
     if (req.query.status) query = query.eq('status', String(req.query.status));
     if (req.query.lead_id) query = query.eq('lead_id', String(req.query.lead_id));
@@ -23,7 +23,7 @@ router.get('/', authenticate, authorize(...STAFF), async (req, res) => {
 
 router.get('/:id', authenticate, authorize(...STAFF), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase.from('quotes').select('*, items:quote_items(*)').eq('id', req.params.id).single();
     if (error) throw error;
     return res.json({ success: true, data });
@@ -36,7 +36,7 @@ router.post('/', authenticate, authorize(...STAFF), async (req, res) => {
   try {
     const parsed = quoteSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: 'Invalid quote data' });
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { items, ...quote } = parsed.data;
     const { data, error } = await supabase.from('quotes').insert(quote).select().single();
     if (error) throw error;
@@ -52,7 +52,7 @@ router.post('/', authenticate, authorize(...STAFF), async (req, res) => {
 
 router.patch('/:id/status', authenticate, authorize(...STAFF), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase.from('quotes').update({ status: req.body.status, updated_at: new Date().toISOString() }).eq('id', req.params.id).select().single();
     if (error) throw error;
     return res.json({ success: true, data });
@@ -63,7 +63,7 @@ router.patch('/:id/status', authenticate, authorize(...STAFF), async (req, res) 
 
 router.post('/:id/convert', authenticate, authorize(...STAFF), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data: quote, error: qErr } = await supabase
       .from('quotes')
       .select('*, items:quote_items(*)')

@@ -8,7 +8,7 @@ const ADMINS = ['SUPER_ADMIN', 'CEO', 'ADMIN'];
 
 router.get('/', authenticate, authorize(...STAFF), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     let query = supabase.from('settings').select('*');
     if (req.query.category) query = query.eq('category', String(req.query.category));
     query = query.order('key', { ascending: true });
@@ -22,7 +22,7 @@ router.get('/', authenticate, authorize(...STAFF), async (req, res) => {
 
 router.put('/:key', authenticate, authorize(...ADMINS), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { value, category } = req.body;
     const { data, error } = await supabase
       .from('settings')

@@ -8,7 +8,7 @@ const FINANCE = ['SUPER_ADMIN', 'CEO', 'FINANCE', 'OPERATIONS_MANAGER', 'ADMIN']
 
 router.get('/', authenticate, authorize(...FINANCE), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     let query = supabase.from('invoices').select('*, items:invoice_items(*)', { count: 'exact' });
     if (req.query.status) query = query.eq('status', String(req.query.status));
     if (req.query.project_id) query = query.eq('project_id', String(req.query.project_id));
@@ -24,7 +24,7 @@ router.get('/', authenticate, authorize(...FINANCE), async (req, res) => {
 // Client-scoped invoices: only invoices for projects the caller belongs to
 router.get('/mine', authenticate, async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data: memberships, error: mErr } = await supabase
       .from('project_members')
       .select('project_id')
@@ -47,7 +47,7 @@ router.get('/mine', authenticate, async (req, res) => {
 
 router.get('/:id', authenticate, async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase
       .from('invoices')
       .select('*, items:invoice_items(*), payments(*)')
@@ -74,7 +74,7 @@ router.post('/', authenticate, authorize(...FINANCE), async (req, res) => {
   try {
     const parsed = invoiceSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: 'Invalid invoice data' });
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { items, ...invoice } = parsed.data;
     const { data, error } = await supabase.from('invoices').insert(invoice).select().single();
     if (error) throw error;
@@ -93,7 +93,7 @@ router.post('/', authenticate, authorize(...FINANCE), async (req, res) => {
 
 router.patch('/:id/status', authenticate, authorize(...FINANCE), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { status, ...payment } = req.body;
     if (!status) return res.status(400).json({ success: false, error: 'status is required' });
     const { data, error } = await supabase.from('invoices').update({ status, updated_at: new Date().toISOString() }).eq('id', req.params.id).select().single();

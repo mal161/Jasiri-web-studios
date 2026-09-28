@@ -9,7 +9,7 @@ router.post('/', authenticate, async (req, res) => {
   try {
     const parsed = analyticsEventSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: 'Invalid analytics event' });
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const e = parsed.data;
     const { data, error } = await supabase
       .from('analytics_events')
@@ -43,7 +43,7 @@ function startForRange(range) {
 
 router.get('/summary', authenticate, authorize('SUPER_ADMIN', 'CEO', 'OPERATIONS_MANAGER', 'FINANCE', 'ADMIN'), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const range = typeof req.query.timeRange === 'string' ? req.query.timeRange : '30d';
     const start = startForRange(range);
 

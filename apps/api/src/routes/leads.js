@@ -8,8 +8,8 @@ const STAFF = ['SUPER_ADMIN', 'CEO', 'OPERATIONS_MANAGER', 'PROJECT_MANAGER', 'S
 
 router.get('/', authenticate, authorize(...STAFF), async (req, res) => {
   try {
-    const supabase = getSupabase();
-    let query = supabase.from('leads').select('*, assignee:profiles!leads_assigned_to_fkey(full_name,email)', { count: 'exact' });
+    const supabase = req.db || getSupabase();
+    let query = supabase.from('leads').select('*, assignee:profiles!leads_assigned_to_fkey(full_name)', { count: 'exact' });
     if (req.query.status) query = query.eq('status', String(req.query.status));
     if (req.query.assigned_to) query = query.eq('assigned_to', String(req.query.assigned_to));
     if (req.query.source) query = query.eq('source', String(req.query.source));
@@ -30,10 +30,10 @@ router.get('/', authenticate, authorize(...STAFF), async (req, res) => {
 
 router.get('/:id', authenticate, authorize(...STAFF), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase
       .from('leads')
-      .select('*, assignee:profiles!leads_assigned_to_fkey(full_name,email), notes:lead_notes(*, author:profiles!lead_notes_user_id_fkey(full_name))')
+      .select('*, assignee:profiles!leads_assigned_to_fkey(full_name), notes:lead_notes(*, author:profiles!lead_notes_user_id_fkey(full_name))')
       .eq('id', req.params.id)
       .single();
     if (error) throw error;
@@ -47,7 +47,7 @@ router.post('/', async (req, res) => {
   try {
     const parsed = leadSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: 'Invalid lead data' });
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase.from('leads').insert(parsed.data).select().single();
     if (error) throw error;
     return res.status(201).json({ success: true, data });
@@ -58,7 +58,7 @@ router.post('/', async (req, res) => {
 
 router.patch('/:id', authenticate, authorize(...STAFF), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase
       .from('leads')
       .update({ ...req.body, updated_at: new Date().toISOString() })
@@ -83,7 +83,7 @@ router.post('/:id/notes', authenticate, authorize(...STAFF), async (req, res) =>
   try {
     const message = String(req.body.message ?? '').trim();
     if (!message) return res.status(400).json({ success: false, error: 'Message is required' });
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase
       .from('lead_notes')
       .insert({ lead_id: req.params.id, user_id: req.user.profile.id, message })

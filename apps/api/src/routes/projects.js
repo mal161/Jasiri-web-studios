@@ -8,7 +8,7 @@ const MANAGERS = ['SUPER_ADMIN', 'CEO', 'OPERATIONS_MANAGER', 'PROJECT_MANAGER',
 
 router.get('/', async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const publicOnly = req.query.admin !== 'true';
     let query = supabase.from('projects').select('*, category:categories(*)', { count: 'exact' });
     if (publicOnly) query = query.neq('status', 'ARCHIVED');
@@ -42,9 +42,9 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const bySlug = req.query.by === 'slug';
-    let query = supabase.from('projects').select('*, category:categories(*), members:project_members(user:profiles!project_members_user_id_fkey(full_name,email,avatar_url),role), milestones(*), tasks(id,title,status,priority,due_date)');
+    let query = supabase.from('projects').select('*, category:categories(*), members:project_members(user:profiles!project_members_user_id_fkey(full_name,avatar_url),role), milestones(*), tasks(id,title,status,priority,due_date)');
     query = bySlug ? query.eq('slug', req.params.id) : query.eq('id', req.params.id);
     const { data, error } = await query.single();
     if (error) throw error;
@@ -58,7 +58,7 @@ router.post('/', authenticate, authorize(...MANAGERS), async (req, res) => {
   try {
     const parsed = projectSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: 'Invalid project data' });
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase.from('projects').insert(parsed.data).select().single();
     if (error) throw error;
     await supabase.from('project_members').insert({ project_id: data.id, user_id: req.user.profile.id, role: 'PROJECT_MANAGER' });
@@ -71,7 +71,7 @@ router.post('/', authenticate, authorize(...MANAGERS), async (req, res) => {
 
 router.patch('/:id', authenticate, authorize(...MANAGERS), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase
       .from('projects')
       .update({ ...req.body, updated_at: new Date().toISOString() })
@@ -87,7 +87,7 @@ router.patch('/:id', authenticate, authorize(...MANAGERS), async (req, res) => {
 
 router.delete('/:id', authenticate, authorize('SUPER_ADMIN', 'ADMIN'), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { count } = await supabase.from('tasks').select('id', { count: 'exact', head: true }).eq('project_id', req.params.id);
     if ((count ?? 0) > 0) {
       return res.status(400).json({ success: false, error: 'Cannot delete project with existing tasks. Archive instead.' });

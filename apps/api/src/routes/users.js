@@ -8,7 +8,7 @@ const STAFF = ['SUPER_ADMIN', 'CEO', 'OPERATIONS_MANAGER', 'PROJECT_MANAGER', 'S
 // Lightweight user lookup for assignment pickers (never returns sensitive fields)
 router.get('/', authenticate, authorize(...STAFF), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     let query = supabase.from('profiles').select('id,full_name,email,role');
     if (req.query.role) query = query.eq('role', String(req.query.role));
     if (req.query.q) {

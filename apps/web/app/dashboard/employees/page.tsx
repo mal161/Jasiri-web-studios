@@ -13,7 +13,7 @@ type Employee = {
   employee_id?: string | null;
   position?: string | null;
   employment_status: string;
-  profile?: { full_name: string; email: string; role: string } | null;
+  profile?: { full_name: string; email?: string; role: string } | null;
   department?: { name: string } | null;
 };
 

@@ -7,11 +7,12 @@ const STAFF = ['SUPER_ADMIN', 'CEO', 'OPERATIONS_MANAGER', 'FINANCE', 'SALES', '
 
 router.get('/', authenticate, authorize(...STAFF), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     let query = supabase.from('profiles').select('*', { count: 'exact' }).eq('role', 'CLIENT');
     if (req.query.search) {
+      // NOTE: profiles has no email column (email lives in auth.users)
       const s = `%${String(req.query.search)}%`;
-      query = query.or(`full_name.ilike.${s},email.ilike.${s}`);
+      query = query.ilike('full_name', s);
     }
     query = query.order('created_at', { ascending: false }).limit(100);
     const { data, error, count } = await query;
@@ -24,7 +25,7 @@ router.get('/', authenticate, authorize(...STAFF), async (req, res) => {
 
 router.get('/:id', authenticate, async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const isSelf = req.user.profile.id === req.params.id;
     const isStaff = req.user.profile.role !== 'CLIENT';
     if (!isSelf && !isStaff) return res.status(403).json({ success: false, error: 'Insufficient permissions' });

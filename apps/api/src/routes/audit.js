@@ -7,8 +7,8 @@ const STAFF = ['SUPER_ADMIN', 'CEO', 'OPERATIONS_MANAGER', 'FINANCE', 'ADMIN'];
 
 router.get('/', authenticate, authorize(...STAFF), async (req, res) => {
   try {
-    const supabase = getSupabase();
-    let query = supabase.from('audit_logs').select('*, actor:profiles!audit_logs_user_id_fkey(full_name,email)', { count: 'exact' });
+    const supabase = req.db || getSupabase();
+    let query = supabase.from('audit_logs').select('*, actor:profiles!audit_logs_user_id_fkey(full_name)', { count: 'exact' });
     if (req.query.action) query = query.eq('action', String(req.query.action));
     if (req.query.resource_type) query = query.eq('resource_type', String(req.query.resource_type));
     const page = Math.max(1, parseInt(String(req.query.page ?? '1'), 10) || 1);

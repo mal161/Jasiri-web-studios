@@ -14,7 +14,7 @@ Public website + portfolio + CRM + analytics + client portal + project managemen
 apps/web      Next.js — public site, dashboards, portals
 apps/api      Express — business logic, protected APIs, analytics
 packages/validation  Shared Zod schemas (leads, projects, invoices, quotes, posts, analytics)
-supabase/migrations  001 schema · 002 RLS · 003 notifications/files/messages
+supabase/migrations  001 schema · 002 RLS · 003 notifications/files/messages · 004 public-insert fix
 supabase/seed        roles, permissions, departments
 ```
 

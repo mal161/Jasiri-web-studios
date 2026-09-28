@@ -7,7 +7,7 @@ const MANAGERS = ['SUPER_ADMIN', 'CEO', 'OPERATIONS_MANAGER', 'PROJECT_MANAGER',
 
 router.get('/', authenticate, async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     let query = supabase.from('milestones').select('*');
     if (req.query.project_id) query = query.eq('project_id', String(req.query.project_id));
     if (req.query.status) query = query.eq('status', String(req.query.status));
@@ -26,7 +26,7 @@ router.post('/', authenticate, authorize(...MANAGERS), async (req, res) => {
     if (!project_id || !title) {
       return res.status(400).json({ success: false, error: 'project_id and title are required' });
     }
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase
       .from('milestones')
       .insert({ project_id, title, description: description ?? null, due_date: due_date ?? null, status: status ?? 'TODO' })
@@ -42,7 +42,7 @@ router.post('/', authenticate, authorize(...MANAGERS), async (req, res) => {
 
 router.patch('/:id', authenticate, authorize(...MANAGERS), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase
       .from('milestones')
       .update({ ...req.body, updated_at: new Date().toISOString() })
@@ -58,7 +58,7 @@ router.patch('/:id', authenticate, authorize(...MANAGERS), async (req, res) => {
 
 router.delete('/:id', authenticate, authorize(...MANAGERS), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase.from('milestones').delete().eq('id', req.params.id).select().single();
     if (error) throw error;
     return res.json({ success: true, data });

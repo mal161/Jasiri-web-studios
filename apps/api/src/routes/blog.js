@@ -8,7 +8,7 @@ const EDITORS = ['SUPER_ADMIN', 'CEO', 'OPERATIONS_MANAGER', 'ADMIN'];
 
 router.get('/', async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     let query = supabase.from('posts').select('*, category:categories(*)', { count: 'exact' });
     if (req.query.admin !== 'true') query = query.eq('status', 'PUBLISHED');
     else if (req.query.status) query = query.eq('status', String(req.query.status));
@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const bySlug = req.query.by === 'slug';
     let query = supabase.from('posts').select('*, category:categories(*)');
     query = bySlug ? query.eq('slug', req.params.id) : query.eq('id', req.params.id);
@@ -47,7 +47,7 @@ router.post('/', authenticate, authorize(...EDITORS), async (req, res) => {
   try {
     const parsed = postSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: 'Invalid post data' });
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const payload = { ...parsed.data, author_id: req.user.profile.id };
     if (payload.status === 'PUBLISHED' && !req.body.published_at) payload.published_at = new Date().toISOString();
     const { data, error } = await supabase.from('posts').insert(payload).select().single();
@@ -61,7 +61,7 @@ router.post('/', authenticate, authorize(...EDITORS), async (req, res) => {
 
 router.patch('/:id', authenticate, authorize(...EDITORS), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const patch = { ...req.body, updated_at: new Date().toISOString() };
     if (patch.status === 'PUBLISHED' && !patch.published_at) patch.published_at = new Date().toISOString();
     if (patch.status && patch.status !== 'PUBLISHED') patch.published_at = null;

@@ -7,7 +7,7 @@ const ADMINS = ['SUPER_ADMIN', 'CEO', 'OPERATIONS_MANAGER', 'ADMIN'];
 
 router.get('/', authenticate, authorize(...ADMINS), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error, count } = await supabase.from('departments').select('*', { count: 'exact' }).order('name', { ascending: true });
     if (error) throw error;
     return res.json({ success: true, data, count });
@@ -18,7 +18,7 @@ router.get('/', authenticate, authorize(...ADMINS), async (req, res) => {
 
 router.get('/:id', authenticate, authorize(...ADMINS), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase.from('departments').select('*').eq('id', req.params.id).single();
     if (error) throw error;
     const { count } = await supabase.from('employees').select('id', { count: 'exact', head: true }).eq('department_id', req.params.id);
@@ -32,7 +32,7 @@ router.post('/', authenticate, authorize('SUPER_ADMIN', 'ADMIN'), async (req, re
   try {
     const { name, code, description, parent_id } = req.body;
     if (!name) return res.status(400).json({ success: false, error: 'name is required' });
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase
       .from('departments')
       .insert({ name, code: code ?? name.toUpperCase().replace(/\s+/g, '_'), description: description ?? null, parent_id: parent_id ?? null })
@@ -47,7 +47,7 @@ router.post('/', authenticate, authorize('SUPER_ADMIN', 'ADMIN'), async (req, re
 
 router.patch('/:id', authenticate, authorize('SUPER_ADMIN', 'ADMIN'), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { data, error } = await supabase.from('departments').update({ ...req.body, updated_at: new Date().toISOString() }).eq('id', req.params.id).select().single();
     if (error) throw error;
     return res.json({ success: true, data });
@@ -58,7 +58,7 @@ router.patch('/:id', authenticate, authorize('SUPER_ADMIN', 'ADMIN'), async (req
 
 router.delete('/:id', authenticate, authorize('SUPER_ADMIN', 'ADMIN'), async (req, res) => {
   try {
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const { count } = await supabase.from('employees').select('id', { count: 'exact', head: true }).eq('department_id', req.params.id);
     if ((count ?? 0) > 0) return res.status(400).json({ success: false, error: 'Cannot delete department with existing employees. Reassign first.' });
     const { data, error } = await supabase.from('departments').delete().eq('id', req.params.id).select().single();

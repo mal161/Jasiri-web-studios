@@ -10,7 +10,7 @@ router.get('/', authenticate, authorize(...STAFF), async (req, res) => {
     const q = String(req.query.q ?? '').trim();
     if (q.length < 2) return res.json({ success: true, data: { projects: [], leads: [], posts: [], tasks: [], invoices: [] } });
     const s = `%${q}%`;
-    const supabase = getSupabase();
+    const supabase = req.db || getSupabase();
     const [projects, leads, posts, tasks, invoices] = await Promise.all([
       supabase.from('projects').select('id,title,slug,status').or(`title.ilike.${s},client.ilike.${s}`).limit(5),
       supabase.from('leads').select('id,name,email,company,status').or(`name.ilike.${s},email.ilike.${s},company.ilike.${s}`).limit(5),
