@@ -8,7 +8,7 @@ const invoiceSchema = z.object({
   tax: z.number().default(0),
   discount: z.number().default(0),
   total: z.number().default(0),
-  currency: z.string().default("USD"),
+  currency: z.string().default("KES"),
   status: z.enum(["DRAFT", "SENT", "PARTIALLY_PAID", "PAID", "OVERDUE", "CANCELLED"]).default("DRAFT"),
   due_date: z.string().optional(),
   issued_date: z.string().default(new Date().toISOString().split("T")[0]),

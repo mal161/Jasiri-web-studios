@@ -62,7 +62,7 @@ export default function ClientPortalPage() {
         <>
           <div className="grid gap-4 sm:grid-cols-3">
             <Card><CardTitle className="flex items-center gap-2 text-sm"><FolderKanban size={15} className="text-primary" /> Active projects</CardTitle><CardDescription><span className="text-2xl font-bold text-text-primary">{projects.length}</span></CardDescription></Card>
-            <Card><CardTitle className="flex items-center gap-2 text-sm"><Wallet size={15} className="text-primary" /> Outstanding</CardTitle><CardDescription><span className="text-2xl font-bold text-text-primary">${outstanding.toLocaleString()}</span> <span className="caption">across {invoices.length} invoice(s)</span></CardDescription></Card>
+            <Card><CardTitle className="flex items-center gap-2 text-sm"><Wallet size={15} className="text-primary" /> Outstanding</CardTitle><CardDescription><span className="text-2xl font-bold text-text-primary">KSh {outstanding.toLocaleString()}</span> <span className="caption">across {invoices.length} invoice(s)</span></CardDescription></Card>
             <Card><CardTitle className="flex items-center gap-2 text-sm"><Bell size={15} className="text-primary" /> Unread notifications</CardTitle><CardDescription><span className="text-2xl font-bold text-text-primary">{unread}</span></CardDescription></Card>
           </div>
           {invoices.length > 0 && (

@@ -98,7 +98,7 @@ export function QuoteForm({ onCreated }: { onCreated: () => void }) {
           </div>
           <p className="flex items-center justify-between border-t border-border pt-3 text-sm font-semibold text-text-primary">
             <span className="inline-flex items-center gap-1.5"><FileSignature size={15} className="text-primary" /> Total</span>
-            <span>${total.toLocaleString()}</span>
+            <span>KSh {total.toLocaleString()}</span>
           </p>
           {error && <p role="alert" className="text-sm text-danger">{error}</p>}
           <Button type="submit" loading={saving} className="w-full"><Plus size={15} /> Create Quote</Button>

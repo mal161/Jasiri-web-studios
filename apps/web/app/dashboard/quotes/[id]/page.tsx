@@ -106,12 +106,12 @@ export default function QuoteDetailPage({ params }: { params: { id: string } }) 
             {(quote.items ?? []).map((i) => (
               <li key={String(i.id)} className="flex items-center justify-between gap-3 py-2">
                 <span className="text-text-primary">{i.description} <span className="caption">× {i.quantity}</span></span>
-                <span className="text-text-primary">${Number(i.total_price).toLocaleString()}</span>
+                <span className="text-text-primary">KSh {Number(i.total_price).toLocaleString()}</span>
               </li>
             ))}
             {(quote.items ?? []).length === 0 && <li className="caption py-2">No line items.</li>}
           </ul>
-          <p className="mt-3 flex justify-between border-t border-border pt-3 text-sm font-semibold text-text-primary"><span>Total</span><span>${total.toLocaleString()}</span></p>
+          <p className="mt-3 flex justify-between border-t border-border pt-3 text-sm font-semibold text-text-primary"><span>Total</span><span>KSh {total.toLocaleString()}</span></p>
           {quote.notes && <p className="mt-3 text-sm text-text-secondary">{quote.notes}</p>}
         </Card>
         <div className="space-y-4">

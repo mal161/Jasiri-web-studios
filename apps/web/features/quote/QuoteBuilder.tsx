@@ -7,25 +7,26 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
 
+// Indicative KES pricing rules (mirrors the pricing_rules table shape)
 const PROJECT_TYPES = [
-  { id: 'website', label: 'Business Website', base: 1200, icon: Globe },
-  { id: 'ecommerce', label: 'E-commerce', base: 3500, icon: ShoppingCart },
-  { id: 'webapp', label: 'Web Application', base: 6000, icon: LayoutDashboard },
-  { id: 'saas', label: 'SaaS Platform', base: 12000, icon: Boxes },
-  { id: 'landing', label: 'Landing Page', base: 600, icon: Building2 },
-  { id: 'maintenance', label: 'Care Plan', base: 300, icon: Wrench }
+  { id: 'website', label: 'Business Website', base: 150000, icon: Globe },
+  { id: 'ecommerce', label: 'E-commerce', base: 450000, icon: ShoppingCart },
+  { id: 'webapp', label: 'Web Application', base: 750000, icon: LayoutDashboard },
+  { id: 'saas', label: 'SaaS Platform', base: 1500000, icon: Boxes },
+  { id: 'landing', label: 'Landing Page', base: 75000, icon: Building2 },
+  { id: 'maintenance', label: 'Care Plan', base: 25000, icon: Wrench }
 ];
 
 const FEATURES = [
-  { id: 'auth', label: 'Authentication + roles', price: 800 },
-  { id: 'payments', label: 'Payments', price: 1200 },
-  { id: 'dashboard', label: 'Admin dashboard', price: 1500 },
-  { id: 'cms', label: 'Blog / CMS', price: 700 },
-  { id: 'api', label: 'API integrations', price: 900 },
-  { id: 'analytics', label: 'Analytics + SEO', price: 500 },
-  { id: 'search', label: 'Search + filters', price: 600 },
-  { id: 'notifications', label: 'Email notifications', price: 400 },
-  { id: 'ai', label: 'AI features', price: 2500 }
+  { id: 'auth', label: 'Authentication + roles', price: 100000 },
+  { id: 'payments', label: 'Payments (M-Pesa/cards)', price: 150000 },
+  { id: 'dashboard', label: 'Admin dashboard', price: 180000 },
+  { id: 'cms', label: 'Blog / CMS', price: 85000 },
+  { id: 'api', label: 'API integrations', price: 110000 },
+  { id: 'analytics', label: 'Analytics + SEO', price: 60000 },
+  { id: 'search', label: 'Search + filters', price: 75000 },
+  { id: 'notifications', label: 'Email notifications', price: 50000 },
+  { id: 'ai', label: 'AI features', price: 300000 }
 ];
 
 export function QuoteBuilder() {
@@ -57,8 +58,8 @@ export function QuoteBuilder() {
           name,
           email,
           service_interest: projectType,
-          budget: `$${total.toLocaleString()}`,
-          message: `${message}\n\nEstimate: $${total.toLocaleString()} (${projectType}; features: ${selected.join(', ')})`,
+          budget: `KSh ${total.toLocaleString()}`,
+          message: `${message}\n\nEstimate: KSh ${total.toLocaleString()} (${projectType}; features: ${selected.join(', ')})`,
           source: 'WEBSITE'
         })
       });
@@ -89,7 +90,7 @@ export function QuoteBuilder() {
                 className={`flex items-center gap-3 rounded-md border p-3 text-left transition-colors ${projectType === t.id ? 'border-primary bg-primary-soft/20' : 'border-border hover:bg-surface-muted'}`}
               >
                 <t.icon size={18} className="shrink-0 text-primary" aria-hidden />
-                <span><span className="block text-sm font-medium text-text-primary">{t.label}</span><span className="caption">from ${t.base.toLocaleString()}</span></span>
+                <span><span className="block text-sm font-medium text-text-primary">{t.label}</span><span className="caption">from KSh {t.base.toLocaleString()}</span></span>
               </button>
             ))}
           </div>
@@ -112,7 +113,7 @@ export function QuoteBuilder() {
                     <span className={`flex h-5 w-5 items-center justify-center rounded border ${on ? 'border-primary bg-primary text-white' : 'border-border'}`}>{on && <Check size={13} />}</span>
                     {f.label}
                   </span>
-                  <span className="caption">+${f.price.toLocaleString()}</span>
+                  <span className="caption">+KSh {f.price.toLocaleString()}</span>
                 </button>
               );
             })}
@@ -138,12 +139,12 @@ export function QuoteBuilder() {
       <aside className="lg:col-span-2">
         <Card className="sticky top-24">
           <p className="caption">ESTIMATED RANGE</p>
-          <p className="mt-1 text-3xl font-bold text-text-primary">${total.toLocaleString()}</p>
+          <p className="mt-1 text-3xl font-bold text-text-primary">KSh {total.toLocaleString()}</p>
           <p className="caption mt-1">Indicative only — fixed quote follows a discovery call.</p>
           <div className="mt-4 space-y-1.5 text-sm">
-            <p className="flex justify-between text-text-secondary"><span>Base ({PROJECT_TYPES.find((t) => t.id === projectType)?.label})</span><span className="text-text-primary">${(PROJECT_TYPES.find((t) => t.id === projectType)?.base ?? 0).toLocaleString()}</span></p>
+            <p className="flex justify-between text-text-secondary"><span>Base ({PROJECT_TYPES.find((t) => t.id === projectType)?.label})</span><span className="text-text-primary">KSh {(PROJECT_TYPES.find((t) => t.id === projectType)?.base ?? 0).toLocaleString()}</span></p>
             {FEATURES.filter((f) => selected.includes(f.id)).map((f) => (
-              <p key={f.id} className="flex justify-between text-text-secondary"><span>{f.label}</span><span className="text-text-primary">+${f.price.toLocaleString()}</span></p>
+              <p key={f.id} className="flex justify-between text-text-secondary"><span>{f.label}</span><span className="text-text-primary">+KSh {f.price.toLocaleString()}</span></p>
             ))}
           </div>
           <div className="mt-4"><Badge tone="primary">{selected.length} features selected</Badge></div>

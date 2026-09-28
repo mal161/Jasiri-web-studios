@@ -24,6 +24,7 @@ export function InvoiceForm({ onCreated }: { onCreated: () => void }) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectId, setProjectId] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [currency, setCurrency] = useState('KES');
   const [tax, setTax] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [items, setItems] = useState<Item[]>([{ description: '', quantity: 1, unit_price: 0 }]);
@@ -62,6 +63,7 @@ export function InvoiceForm({ onCreated }: { onCreated: () => void }) {
           invoice_number: number,
           project_id: projectId ? Number(projectId) : undefined,
           due_date: dueDate || undefined,
+          currency,
           subtotal,
           tax: Number(tax || 0),
           discount: Number(discount || 0),
@@ -98,7 +100,18 @@ export function InvoiceForm({ onCreated }: { onCreated: () => void }) {
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             <Input label="Due date" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+            <div>
+              <label htmlFor="inv-currency" className="label">Currency</label>
+              <select id="inv-currency" className="input" value={currency} onChange={(e) => setCurrency(e.target.value)}>
+                <option value="KES">KES — Kenyan Shilling</option>
+                <option value="USD">USD — US Dollar</option>
+                <option value="EUR">EUR — Euro</option>
+                <option value="GBP">GBP — British Pound</option>
+              </select>
+            </div>
             <Input label="Tax" type="number" min="0" step="0.01" value={tax} onChange={(e) => setTax(Number(e.target.value))} />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
             <Input label="Discount" type="number" min="0" step="0.01" value={discount} onChange={(e) => setDiscount(Number(e.target.value))} />
           </div>
           <div>
@@ -121,7 +134,7 @@ export function InvoiceForm({ onCreated }: { onCreated: () => void }) {
           </div>
           <p className="flex items-center justify-between border-t border-border pt-3 text-sm font-semibold text-text-primary">
             <span className="inline-flex items-center gap-1.5"><ReceiptText size={15} className="text-primary" /> Total</span>
-            <span>USD {total.toLocaleString()}</span>
+            <span>{currency} {total.toLocaleString()}</span>
           </p>
           {error && <p role="alert" className="text-sm text-danger">{error}</p>}
           <Button type="submit" loading={saving} className="w-full"><Plus size={15} /> Create Invoice</Button>

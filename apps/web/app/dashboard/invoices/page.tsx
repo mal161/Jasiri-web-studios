@@ -62,7 +62,7 @@ export default function InvoicesPage() {
       {state === 'ready' && (
         <>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Card><p className="caption">OUTSTANDING</p><p className="text-2xl font-bold text-text-primary">${outstanding.toLocaleString()}</p></Card>
+            <Card><p className="caption">OUTSTANDING</p><p className="text-2xl font-bold text-text-primary">KSh {outstanding.toLocaleString()}</p></Card>
             <Card><p className="caption">INVOICES SHOWN</p><p className="text-2xl font-bold text-text-primary">{invoices.length}</p></Card>
           </div>
           {invoices.length === 0 ? (
